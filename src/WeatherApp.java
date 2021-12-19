@@ -13,6 +13,8 @@ import java.util.Scanner;
 
 
 public class WeatherApp {
+    private static final String ZIP_PROMPT = "Type in your Zip code: ";
+    private static final String API_KEY = "69b953300c17615eb1dbd933559cadb2";
     private final Scanner scanner = new Scanner(System.in);
 
     public static Map<String, Object> jsonToMap(String str) {
@@ -23,23 +25,17 @@ public class WeatherApp {
         return map;
     }
 
-    private static String giveZip() {
-        return "Type in your Zip code: ";
-    }
-
-    private void printInformation(Map<String, Object> mainMap, Map<String, Object> sysMap, Map<String, Object> weatherMap, String zipcode) {
-        System.out.println("Units of Measurement are in Imperial");
-        System.out.println("Temperature: " + mainMap.get("temp"));
-        System.out.println("Humidity: " + mainMap.get("humidity"));
-        System.out.println("Country: " + sysMap.get("country"));
-        System.out.println("Weather: " + weatherMap.get("main") + "\nDescription: " + weatherMap.get("description"));
-        System.out.println("Zip Code: " + zipcode);
+    private String createWeatherInformation(Map<String, Object> mainMap, Map<String, Object> sysMap, Map<String, Object> weatherMap, String zipcode) {
+        return "Units of Measurement are in Imperial\n"
+                + "Temperature: " + mainMap.get("temp") + "\n"
+                + "Humidity: " + mainMap.get("humidity") + "\n"
+                + "Country: " + sysMap.get("country") + "\n"
+                + "Weather: " + weatherMap.get("main") + "\nDescription: " + weatherMap.get("description") + "\n"
+                + "Zip Code: " + zipcode;
     }
 
     private void read() {
-        String API_KEY = "69b953300c17615eb1dbd933559cadb2";
-        System.out.println(giveZip());
-        String zipcode = scanner.next();
+        String zipcode = promptForInput(ZIP_PROMPT);
         String urlString = "http://api.openweathermap.org/data/2.5/weather?zip=" + zipcode + "&appid=" + API_KEY + "&units=imperial";
         try {
             StringBuilder result = new StringBuilder();
@@ -58,11 +54,16 @@ public class WeatherApp {
             ArrayList<Map<String, Object>> weathers = (ArrayList<Map<String, Object>>) respMap.get("weather");
             Map<String, Object> weatherMap = weathers.get(0);
 
-            printInformation(mainMap, sysMap, weatherMap, zipcode);
+            System.out.println(createWeatherInformation(mainMap, sysMap, weatherMap, zipcode));
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
 
+    }
+
+    private String promptForInput(String prompt) {
+        System.out.println(prompt);
+        return scanner.next();
     }
 
     public static void main(String[] args) {
