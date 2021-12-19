@@ -1,5 +1,6 @@
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,36 +17,37 @@ public class WeatherApp {
 
     public static Map<String, Object> jsonToMap(String str) {
         Map<String, Object> map = new Gson().fromJson(
-                str, new TypeToken<HashMap<String,Object>>() {}.getType()
+                str, new TypeToken<HashMap<String, Object>>() {
+                }.getType()
         );
         return map;
     }
 
-    private void giveZip () {
-        System.out.println("Type in your Zip code: ");
+    private static String giveZip() {
+        return "Type in your Zip code: ";
     }
 
-    private void printInformation(Map<String, Object> mainMap, Map<String, Object> sysMap, Map<String, Object> weatherMap, String ZIPCODE ) {
+    private void printInformation(Map<String, Object> mainMap, Map<String, Object> sysMap, Map<String, Object> weatherMap, String zipcode) {
         System.out.println("Units of Measurement are in Imperial");
         System.out.println("Temperature: " + mainMap.get("temp"));
         System.out.println("Humidity: " + mainMap.get("humidity"));
         System.out.println("Country: " + sysMap.get("country"));
-        System.out.println("Weather: " + weatherMap.get("main") +"\nDescription: "+weatherMap.get("description"));
-        System.out.println("Zip Code: " + ZIPCODE);
+        System.out.println("Weather: " + weatherMap.get("main") + "\nDescription: " + weatherMap.get("description"));
+        System.out.println("Zip Code: " + zipcode);
     }
-    private void read() {
 
+    private void read() {
         String API_KEY = "69b953300c17615eb1dbd933559cadb2";
-        giveZip();
-        String ZIPCODE = scanner.next();
-        String urlString = "http://api.openweathermap.org/data/2.5/weather?zip="+ZIPCODE+"&appid="+API_KEY+"&units=imperial";
+        System.out.println(giveZip());
+        String zipcode = scanner.next();
+        String urlString = "http://api.openweathermap.org/data/2.5/weather?zip=" + zipcode + "&appid=" + API_KEY + "&units=imperial";
         try {
             StringBuilder result = new StringBuilder();
             URL url = new URL(urlString);
             URLConnection conn = url.openConnection();
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
-            while((line=rd.readLine()) != null) {
+            while ((line = rd.readLine()) != null) {
                 result.append(line);
             }
             rd.close();
@@ -56,14 +58,15 @@ public class WeatherApp {
             ArrayList<Map<String, Object>> weathers = (ArrayList<Map<String, Object>>) respMap.get("weather");
             Map<String, Object> weatherMap = weathers.get(0);
 
-            printInformation(mainMap, sysMap, weatherMap, ZIPCODE);
-        } catch(IOException e) {
+            printInformation(mainMap, sysMap, weatherMap, zipcode);
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
 
     }
-    public static void main (String[] args) {
-    WeatherApp w = new WeatherApp();
-    w.read();
+
+    public static void main(String[] args) {
+        WeatherApp w = new WeatherApp();
+        w.read();
     }
 }
