@@ -25,7 +25,16 @@ public class WeatherApp {
         return map;
     }
 
-    private String createWeatherInformation(Map<String, Object> mainMap, Map<String, Object> sysMap, Map<String, Object> weatherMap, String zipcode) {
+    public static void main(String[] args) {
+        WeatherApp w = new WeatherApp();
+        w.run();
+    }
+
+    private String formatWeatherInformation(Map<String, Object> respMap, String zipcode) {
+        Map<String, Object> mainMap = jsonToMap(respMap.get("main").toString());
+        Map<String, Object> sysMap = jsonToMap(respMap.get("sys").toString());
+        ArrayList<Map<String, Object>> weathers = (ArrayList<Map<String, Object>>) respMap.get("weather");
+        Map<String, Object> weatherMap = weathers.get(0);
         return "Units of Measurement are in Imperial\n"
                 + "Temperature: " + mainMap.get("temp") + "\n"
                 + "Humidity: " + mainMap.get("humidity") + "\n"
@@ -34,40 +43,33 @@ public class WeatherApp {
                 + "Zip Code: " + zipcode;
     }
 
-    private void read() {
-        String zipcode = promptForInput(ZIP_PROMPT);
-        String urlString = "http://api.openweathermap.org/data/2.5/weather?zip=" + zipcode + "&appid=" + API_KEY + "&units=imperial";
-        try {
-            StringBuilder result = new StringBuilder();
-            URL url = new URL(urlString);
-            URLConnection conn = url.openConnection();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String line;
-            while ((line = rd.readLine()) != null) {
-                result.append(line);
-            }
-            rd.close();
-
-            Map<String, Object> respMap = jsonToMap(result.toString());
-            Map<String, Object> mainMap = jsonToMap(respMap.get("main").toString());
-            Map<String, Object> sysMap = jsonToMap(respMap.get("sys").toString());
-            ArrayList<Map<String, Object>> weathers = (ArrayList<Map<String, Object>>) respMap.get("weather");
-            Map<String, Object> weatherMap = weathers.get(0);
-
-            System.out.println(createWeatherInformation(mainMap, sysMap, weatherMap, zipcode));
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-
-    }
-
     private String promptForInput(String prompt) {
         System.out.println(prompt);
         return scanner.next();
     }
 
-    public static void main(String[] args) {
-        WeatherApp w = new WeatherApp();
-        w.read();
+    private String getWeatherInformation(String zipcode) throws IOException {
+        URL url = new URL("http://api.openweathermap.org/data/2.5/weather?zip=" + zipcode + "&appid=" + API_KEY + "&units=imperial");
+        URLConnection conn = url.openConnection();
+        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String line;
+        StringBuilder result = new StringBuilder();
+        while ((line = rd.readLine()) != null) {
+            result.append(line);
+        }
+        rd.close();
+        return result.toString();
+    }
+
+    public void run() {
+        String zipcode = promptForInput(ZIP_PROMPT);
+
+        try {
+            String weatherInformation = getWeatherInformation(zipcode);
+            Map<String, Object> respMap = jsonToMap(weatherInformation);
+            System.out.println(formatWeatherInformation(respMap, zipcode));
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
     }
 }
