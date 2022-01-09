@@ -25,11 +25,6 @@ public class WeatherApp {
         return map;
     }
 
-    public static void main(String[] args) {
-        WeatherApp w = new WeatherApp();
-        w.run();
-    }
-
     private String formatWeatherInformation(Map<String, Object> respMap, String zipcode) {
         Map<String, Object> mainMap = jsonToMap(respMap.get("main").toString());
         Map<String, Object> sysMap = jsonToMap(respMap.get("sys").toString());
@@ -68,6 +63,29 @@ public class WeatherApp {
             String weatherInformation = getWeatherInformation(zipcode);
             Map<String, Object> respMap = jsonToMap(weatherInformation);
             System.out.println(formatWeatherInformation(respMap, zipcode));
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        WeatherApp w = new WeatherApp();
+        w.run();
+        w.jsonToJavaMap();
+    }
+
+    public void jsonToJavaMap() {
+        //#####
+        String zipcode = promptForInput(ZIP_PROMPT);
+        try {
+            //The Json file is now a jsonString
+            String weatherInformation = getWeatherInformation(zipcode);
+            //converts the jsonString into a Java Map
+            Map<String, Object> map = new Gson().fromJson(weatherInformation, Map.class);
+            //Prints out map keys and values including what is within Arrays
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                System.out.println(entry.getKey() + "=" + entry.getValue());
+            }
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
