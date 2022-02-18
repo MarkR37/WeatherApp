@@ -16,6 +16,7 @@ public class WeatherApp {
     private static final String ZIP_PROMPT = "Type in your Zip code: ";
     private static final String API_KEY = "69b953300c17615eb1dbd933559cadb2";
     private final Scanner scanner = new Scanner(System.in);
+    private Gson gson = new Gson();
 
     public static Map<String, Object> jsonToMap(String str) {
         Map<String, Object> map = new Gson().fromJson(
@@ -68,10 +69,23 @@ public class WeatherApp {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         WeatherApp w = new WeatherApp();
-        w.run();
-        w.jsonToJavaMap();
+        //w.run();
+        //w.jsonToJavaMap();
+        w.jsonToJavaMap2();
+    }
+
+    public String weatherString() throws IOException {
+        String zipcode = promptForInput(ZIP_PROMPT);
+        return getWeatherInformation(zipcode);
+    }
+
+    public void jsonToJavaMap2() throws IOException {
+        String zipcode = promptForInput(ZIP_PROMPT);
+        String weatherInformation = getWeatherInformation(zipcode);
+        WeatherData weatherData = gson.fromJson(weatherInformation, WeatherData.class);
+        System.out.println(weatherData);
     }
 
     public void jsonToJavaMap() {
@@ -82,7 +96,13 @@ public class WeatherApp {
             String weatherInformation = getWeatherInformation(zipcode);
             //converts the jsonString into a Java Map
             Map<String, Object> map = new Gson().fromJson(weatherInformation, Map.class);
+            //do > instead of ^ . create a class named WeatherData and create the class.
+            //WeatherData weatherData = gson.fromJson(jsonString, WeatherData.class);
+            //WeatherData weatherData = gson.fromJson(weatherInformation, WeatherData.class);
+            //System.out.println(weatherData);
             //Prints out map keys and values including what is within Arrays
+
+
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 System.out.println(entry.getKey() + "=" + entry.getValue());
             }
