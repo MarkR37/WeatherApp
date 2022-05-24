@@ -7,9 +7,7 @@ public class APIResult {
     public Main main;
     public Wind wind;
     public Sys sys;
-    public String base;
-
-    public String name; // its just an object within the json, no need for a class.
+    public String name;
 
     public static class Coord {
         public double lon;
@@ -22,12 +20,11 @@ public class APIResult {
 
     public static class Main {
         public double temp;
+        public double feels_like;
     }
 
     public static class Wind {
         public double speed;
-        public double deg;
-        public double gust;
     }
 
     public static class Sys {

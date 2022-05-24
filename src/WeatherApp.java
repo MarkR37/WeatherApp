@@ -11,8 +11,11 @@ import java.util.Scanner;
 public class WeatherApp {
     private static final String ZIP_PROMPT = "Type in your Zip code: ";
     private static final String API_KEY = "69b953300c17615eb1dbd933559cadb2";
+    public static final String ASK_USER = "If you want to check another zipcode Type 'y' . If you want to exit Type 'n'";
     private final Scanner scanner = new Scanner(System.in);
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
+    private APIResult apiResult = new APIResult();
+    private String zipcode;
 
     private String promptForInput(String prompt) {
         System.out.println(prompt);
@@ -38,7 +41,7 @@ public class WeatherApp {
     }
 
     public void askUserIfNewZip() throws IOException {
-        System.out.println("If you want to check another zipcode Type 'y' . If you want to exit Type 'n'");
+        System.out.println(ASK_USER);
         String x = scanner.next();
         if (x.equals("y")) {
             run();
@@ -46,24 +49,38 @@ public class WeatherApp {
         System.exit(0);
     }
 
-    public void displayInfo() throws IOException {
-        String zipcode = promptForInput(ZIP_PROMPT);
+    public void generateData() throws IOException {
+        zipcode = promptForInput(ZIP_PROMPT);
         String weatherInformation = getWeatherInformation(zipcode);
-        APIResult apiResult = gson.fromJson(weatherInformation, APIResult.class);
-        System.out.println("Current Coordinate Latitude: " + apiResult.coord.lat);
-        System.out.println("Current Coordinate Longitude: " + apiResult.coord.lon);
-        System.out.println("Temperature: " + apiResult.main.temp);
-        System.out.println("Wind-Angle: " + apiResult.wind.deg);
-        System.out.println("Wind-Speed: " + apiResult.wind.speed);
-        System.out.println("Wind-Gust: " + apiResult.wind.gust);
-        //System.out.println("Weather: " + apiResult.weather); // ask for some help since i'm unsure if this file is corrupted.
-        System.out.println("Country: " + apiResult.sys.country);
-        System.out.println("City: " + apiResult.name);
-        System.out.println("Zipcode: " + zipcode);
+        apiResult = gson.fromJson(weatherInformation, APIResult.class);
     }
 
+    public void generalInfo() {
+        System.out.println("City: " + apiResult.name);
+        System.out.println("Zipcode: " + zipcode);
+        System.out.println("Country: " + apiResult.sys.country);
+        System.out.println("Temperature: " + apiResult.main.temp + " °F");
+        System.out.println("Feels like: " + apiResult.main.feels_like + " °F");
+        System.out.println("Weather: " + apiResult.weather.get(0).description);
+        System.out.println("Current Coordinate Latitude: " + apiResult.coord.lat);
+        System.out.println("Current Coordinate Longitude: " + apiResult.coord.lon);
+    }
+
+    public void windSpeed() {
+        if (apiResult.wind.speed < 20) {
+            System.out.println("Wind: Breezy");
+        } else if (apiResult.wind.speed > 21 && apiResult.wind.speed < 35) {
+            System.out.println("Wind: Windy");
+        } else {
+            System.out.println("Wind: Very Windy");
+        }
+    }
+
+
     public void run() throws IOException {
-        displayInfo();
+        generateData();
+        generalInfo();
+        windSpeed();
         askUserIfNewZip();
     }
 
@@ -72,6 +89,7 @@ public class WeatherApp {
     //https://api.openweathermap.org/data/2.5/weather?zip=33496,us&appid=69b953300c17615eb1dbd933559cadb2&units=imperial
 
     //Goals: If user wants to check another zipcode, allow them, else exit. DONE
-    //Fix Weather to properly display information, currently it displays a token.
+    //Fix Weather to display the Description. DONE
+    //Give displayInfo Less to do. DONE
 
 }
